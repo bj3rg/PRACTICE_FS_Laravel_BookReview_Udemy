@@ -30,17 +30,30 @@ class DatabaseSeeder extends Seeder
                 ->for($book)
                 // Creates the review
                 ->create();
+        });
+        Book::factory(33)->create()->each(function ($book) {
+
+            // Number of reviews using randomizer
+            $numReviews = random_int(5, 30);
 
             Review::factory()->count($numReviews)
                 ->average()
                 ->for($book)
                 ->create();
+        });
+        Book::factory(34)->create()->each(function ($book) {
+
+            // Number of reviews using randomizer
+            $numReviews = random_int(5, 30);
 
             Review::factory()->count($numReviews)
                 ->bad()
                 ->for($book)
                 ->create();
         });
+
+
+
 
 
 
