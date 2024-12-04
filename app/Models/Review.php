@@ -11,6 +11,11 @@ class Review extends Model
     //Add this line everytime you want to create a seeder
     use HasFactory;
     //
+    protected $fillable =
+    [
+        'review',
+        'rating'
+    ];
     public function book()
     {
         return $this->belongsTo(Book::class);
