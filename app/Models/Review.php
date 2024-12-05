@@ -20,4 +20,13 @@ class Review extends Model
     {
         return $this->belongsTo(Book::class);
     }
+
+    protected static function booted()
+    {
+        // Clear the cache for the associated book when a review is updated
+        static::updated(fn(Review $review) => cache()->forget('book:' . $review->book_id));
+
+        // Clear the cache for the associated book when a review is deleted
+        static::deleted(fn(Review $review) => cache()->forget('book:' . $review->book_id));
+    }
 }
