@@ -12,12 +12,28 @@ class BookController extends Controller
      */
     public function index(Request $request)
     {
-        //
+        //Get input from user
         $title = $request->input('title');
+        //Check what user wants to filter
+        $filter = $request->input('filter', '');
+
+        //Conditional query using when, if title exists, then function runs
         $books = Book::when($title, function ($query, $title) {
             return $query->title($title);
-        })->get();
-        return view('books.index', ['books' => $books]);
+        });
+
+        // Use a switch-case type; it gets the value of filter then it calls the query function for the selected one's
+        $books = match ($filter) {
+
+            'popular_last_month' => $books->popularLastMonth(),
+            'popular_last_6month' => $books->popularLast6Month(),
+            'highest_rated_last_month' => $books->highestRatedLastMonth(),
+            'highest_rated_last_6month' => $books->highestRatedLast6Month(),
+            default => $books->latest()
+        };
+
+        $books = $books->get();
+        return view('books.index', ['books' => $books, 'filter' => $filter]);
     }
 
     /**
