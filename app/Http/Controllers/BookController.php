@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Book;
 use Illuminate\Http\Request;
+// use Illuminate\Support\Facades\Cache;
 
 class BookController extends Controller
 {
@@ -32,9 +33,32 @@ class BookController extends Controller
             default => $books->latest()
         };
 
-        $books = $books->get();
+        // $books = $books->get();
+        $cacheKey = 'books:' . $filter . ':' . $title;
+        $books = cache()->remember($cacheKey, 3600, fn() => $books->get());
+
+
         return view('books.index', ['books' => $books, 'filter' => $filter]);
     }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Book $book)
+    {
+        // Generate a unique cache key for the current book using its ID
+        $cacheKey = 'book:' . $book->id;
+
+        // Store or retrieve the book and its reviews from the cache for 1 hour (3600 seconds)
+        // If not already cached, load the book with its reviews sorted by the most recent
+        $book = cache()->remember($cacheKey, 3600, fn() =>  $book->load([
+            'reviews' => fn($query) => $query->latest()
+        ]));
+
+        // Returns the current book data; it has a sorting mechanism for reviews via recent or latest review
+        return view('books.show', ['book' => $book]);
+    }
+
 
     /**
      * Show the form for creating a new resource.
@@ -52,16 +76,7 @@ class BookController extends Controller
         //
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Book $book)
-    {
-        //Returns the current book data; it has a sorting mechanism for reviews via recent or latest review
-        return view('books.show', ['book' => $book->load([
-            'reviews' => fn($query) => $query->latest()
-        ])]);
-    }
+
 
     /**
      * Show the form for editing the specified resource.
