@@ -55,9 +55,12 @@ class BookController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Book $book)
     {
-        //
+        //Returns the current book data; it has a sorting mechanism for reviews via recent or latest review
+        return view('books.show', ['book' => $book->load([
+            'reviews' => fn($query) => $query->latest()
+        ])]);
     }
 
     /**
